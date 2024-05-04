@@ -1,0 +1,9 @@
+name: luigi-env
+channels:
+  - conda-forge
+  - defaults
+dependencies:
+  - pip=24.0
+  - python=3.12.3
+  - pip:
+      - luigi==3.5.0
