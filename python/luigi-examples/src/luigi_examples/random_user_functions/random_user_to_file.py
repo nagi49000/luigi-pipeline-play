@@ -1,9 +1,7 @@
 import json
-import os
-from pathlib import Path
 import avro.schema
-from avro.datafile import DataFileReader, DataFileWriter
-from avro.io import DatumReader, DatumWriter
+from avro.datafile import DataFileWriter
+from avro.io import DatumWriter
 import pyarrow
 import pyarrow.parquet
 
@@ -66,7 +64,8 @@ def to_parquet(_, input_generator, output_path):
     )
     with pyarrow.parquet.ParquetWriter(output_path, schema=parquet_schema) as writer:
         for line in input_generator:
-            # take line and dress as a dict representing a 1-elt table - this is not efficient
+            # take line and dress as a dict representing a 1-elt table
+            # this is not efficient
             table_as_dict = {k: [v] for k, v in json.loads(line).items()}
             table = pyarrow.Table.from_pydict(table_as_dict, schema=parquet_schema)
             writer.write_table(table)

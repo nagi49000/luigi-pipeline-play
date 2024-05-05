@@ -1,13 +1,6 @@
 import luigi
-import requests
-import json
 import logging
 from pathlib import Path
-import avro.schema
-from avro.datafile import DataFileReader, DataFileWriter
-from avro.io import DatumReader, DatumWriter
-import pyarrow
-import pyarrow.parquet
 from .random_user_functions.random_user_api import (
     download_random_users,
     validate_random_users,
@@ -27,7 +20,9 @@ class DownloadRandomUsers(luigi.Task):
     workdir = luigi.PathParameter(default=".")
 
     def output(self):
-        return luigi.LocalTarget(Path(self.workdir) / "raw" / "randomusers.txt")
+        return luigi.LocalTarget(
+            Path(self.workdir) / "raw" / "randomusers.txt"
+        )
 
     def run(self):
         with self.output().temporary_path() as temp_output_path:
@@ -42,7 +37,9 @@ class ValidateRandomUsers(luigi.Task):
         return DownloadRandomUsers(workdir=self.workdir)
 
     def output(self):
-        return luigi.LocalTarget(Path(self.workdir) / "validated" / "randomusers.txt")
+        return luigi.LocalTarget(
+            Path(self.workdir) / "validated" / "randomusers.txt"
+        )
 
     def run(self):
         with self.input().open("r") as input_lines:
@@ -58,7 +55,9 @@ class ExtractFlatDetails(luigi.Task):
         return ValidateRandomUsers(workdir=self.workdir)
 
     def output(self):
-        return luigi.LocalTarget(Path(self.workdir) / "flattened" / "randomusers.txt")
+        return luigi.LocalTarget(
+            Path(self.workdir) / "flattened" / "randomusers.txt"
+        )
 
     def run(self):
         with self.input().open("r") as input_lines:
