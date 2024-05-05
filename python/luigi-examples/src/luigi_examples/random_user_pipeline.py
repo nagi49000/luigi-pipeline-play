@@ -172,8 +172,10 @@ schema = {
 
 class DownloadRandomUsers(luigi.Task):
 
+    workdir = luigi.PathParameter(default=".")
+
     def output(self):
-        return luigi.LocalTarget(Path("raw") / "randomusers.txt")
+        return luigi.LocalTarget(Path(self.workdir) / "raw" / "randomusers.txt")
 
     def run(self):
         with self.output().temporary_path() as temp_output_path:
@@ -187,11 +189,13 @@ class DownloadRandomUsers(luigi.Task):
 
 class ValidateRandomUsers(luigi.Task):
 
+    workdir = luigi.PathParameter(default=".")
+
     def requires(self):
-        return DownloadRandomUsers()
+        return DownloadRandomUsers(workdir=self.workdir)
 
     def output(self):
-        return luigi.LocalTarget(Path("validated") / "randomusers.txt")
+        return luigi.LocalTarget(Path(self.workdir) / "validated" / "randomusers.txt")
 
     def run(self):
         logger = logging.getLogger("luigi")
@@ -213,11 +217,13 @@ class ValidateRandomUsers(luigi.Task):
 
 class ExtractFlatDetails(luigi.Task):
 
+    workdir = luigi.PathParameter(default=".")
+
     def requires(self):
-        return ValidateRandomUsers()
+        return ValidateRandomUsers(workdir=self.workdir)
 
     def output(self):
-        return luigi.LocalTarget(Path("flattened") / "randomusers.txt")
+        return luigi.LocalTarget(Path(self.workdir) / "flattened" / "randomusers.txt")
 
     def run(self):
         with self.input().open("r") as input_lines:
@@ -241,11 +247,13 @@ class ExtractFlatDetails(luigi.Task):
 
 class ToAvro(luigi.Task):
 
+    workdir = luigi.PathParameter(default=".")
+
     def requires(self):
-        return ExtractFlatDetails()
+        return ExtractFlatDetails(workdir=self.workdir)
 
     def output(self):
-        return luigi.LocalTarget(Path("avro") / "randomusers.avro", format=luigi.format.Nop)
+        return luigi.LocalTarget(Path(self.workdir) / "avro" / "randomusers.avro", format=luigi.format.Nop)
 
     def run(self):
         avro_schema = {
@@ -274,11 +282,13 @@ class ToAvro(luigi.Task):
 
 class ToParquet(luigi.Task):
 
+    workdir = luigi.PathParameter(default=".")
+
     def requires(self):
-        return ExtractFlatDetails()
+        return ExtractFlatDetails(workdir=self.workdir)
 
     def output(self):
-        return luigi.LocalTarget(Path("parquet") / "randomusers.parquet", format=luigi.format.Nop)
+        return luigi.LocalTarget(Path(self.workdir) / "parquet" / "randomusers.parquet", format=luigi.format.Nop)
 
     def run(self):
         parquet_schema = pyarrow.schema([
@@ -303,8 +313,10 @@ class ToParquet(luigi.Task):
 
 class AllSinks(luigi.WrapperTask):
 
+    workdir = luigi.PathParameter(default=".")
+
     def requires(self):
         return [
-            ToParquet(),
-            ToAvro()
+            ToParquet(workdir=self.workdir),
+            ToAvro(workdir=self.workdir)
         ]
