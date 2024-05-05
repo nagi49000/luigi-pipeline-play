@@ -21,7 +21,7 @@ def download_random_users(logger, output_path, n_record=3):
                 )
 
 
-def validate_random_users(logger, input_generator, output_path):
+def validate_random_users(logger, input_generator, output_path, failed_validation_path):
     schema = {
         "$schema": "http://json-schema.org/draft-04/schema#",
         "type": "object",
@@ -184,9 +184,7 @@ def validate_random_users(logger, input_generator, output_path):
             except ValidationError as e:
                 logger.error(e)
                 random_stamped_str = f"{''.join(choices(ascii_uppercase, k=10))}-{datetime.now(UTC).isoformat()}"
-                os.makedirs("validation-failed", exist_ok=True)
-                filename = (
-                    Path("validation-failed") / random_stamped_str
-                )  # TODO how to pass workdir here??
+                os.makedirs(failed_validation_path, exist_ok=True)
+                filename = (failed_validation_path / random_stamped_str)
                 with open(filename, "wt") as f:
                     f.write(line)

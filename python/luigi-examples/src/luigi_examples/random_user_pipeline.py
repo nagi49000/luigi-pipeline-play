@@ -44,7 +44,7 @@ class ValidateRandomUsers(luigi.Task):
     def run(self):
         with self.input().open("r") as input_lines:
             with self.output().temporary_path() as temp_output_path:
-                validate_random_users(logger, input_lines, temp_output_path)
+                validate_random_users(logger, input_lines, temp_output_path, Path(self.workdir) / "validation-failed")
 
 
 class ExtractFlatDetails(luigi.Task):
