@@ -6,4 +6,7 @@ dependencies:
   - pip=24.0
   - python=3.12.3
   - pip:
+      - jsonschema==4.22.0
       - luigi==3.5.0
+      - requests==2.31.0
+      - toml==0.10.2
