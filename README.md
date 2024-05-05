@@ -1,6 +1,19 @@
 # luigi-pipeline-play
 Repo for playing with data pipelines in Luigi
 
+### Simple set up
+
+For running on bare metal, one can set up a conda environment with a [yaml file](./python/environment.yml), by running in the terminal
+```bash
+conda env create --file python/environment.yml
+conda activate luigi-env
+```
+
+the pipeline can then be instantiated on the command line
+```bash
+# in ./python/luigi-examples/src
+python -m luigi --module luigi_examples.random_user_pipeline  AllSinks --local-scheduler --workdir file-outputs
+```
 
 ### References
 
