@@ -37,14 +37,16 @@ class ValidateRandomUsers(luigi.Task):
         return DownloadRandomUsers(workdir=self.workdir)
 
     def output(self):
-        return luigi.LocalTarget(
-            Path(self.workdir) / "validated" / "randomusers.txt"
-        )
+        return {
+            "valid": luigi.LocalTarget(Path(self.workdir) / "validated" / "randomusers.txt"),
+            "invalid": luigi.LocalTarget(Path(self.workdir) / "validation-failed" / "randomusers.txt")
+        }
 
     def run(self):
         with self.input().open("r") as input_lines:
-            with self.output().temporary_path() as temp_output_path:
-                validate_random_users(logger, input_lines, temp_output_path, Path(self.workdir) / "validation-failed")
+            with self.output()["valid"].temporary_path() as temp_valid_output_path:
+                with self.output()["invalid"].temporary_path() as temp_invalid_output_path:
+                    validate_random_users(logger, input_lines, temp_valid_output_path, temp_invalid_output_path)
 
 
 class ExtractFlatDetails(luigi.Task):
@@ -60,7 +62,7 @@ class ExtractFlatDetails(luigi.Task):
         )
 
     def run(self):
-        with self.input().open("r") as input_lines:
+        with self.input()["valid"].open("r") as input_lines:
             with self.output().temporary_path() as temp_output_path:
                 extract_flat_details(logger, input_lines, temp_output_path)
 

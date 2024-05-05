@@ -21,7 +21,7 @@ def download_random_users(logger, output_path, n_record=3):
                 )
 
 
-def validate_random_users(logger, input_generator, output_path, failed_validation_path):
+def validate_random_users(logger, input_generator, valid_output_path, invalid_output_path):
     schema = {
         "$schema": "http://json-schema.org/draft-04/schema#",
         "type": "object",
@@ -176,15 +176,12 @@ def validate_random_users(logger, input_generator, output_path, failed_validatio
         "required": ["results", "info"],
     }
 
-    with open(output_path, "wt") as output_lines:
-        for line in input_generator:
-            try:
-                validate(instance=json.loads(line), schema=schema)
-                output_lines.write(line)
-            except ValidationError as e:
-                logger.error(e)
-                random_stamped_str = f"{''.join(choices(ascii_uppercase, k=10))}-{datetime.now(UTC).isoformat()}"
-                os.makedirs(failed_validation_path, exist_ok=True)
-                filename = (failed_validation_path / random_stamped_str)
-                with open(filename, "wt") as f:
-                    f.write(line)
+    with open(valid_output_path, "wt") as valid_output_lines:
+        with open(invalid_output_path, "wt") as invalid_output_lines:
+            for line in input_generator:
+                try:
+                    validate(instance=json.loads(line), schema=schema)
+                    valid_output_lines.write(line)
+                except ValidationError as e:
+                    logger.error(e)
+                    invalid_output_lines.write(line)
