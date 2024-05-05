@@ -22,7 +22,9 @@ def download_random_users(logger, output_path, n_record=3):
                 )
 
 
-def validate_random_users(logger, input_generator, valid_output_path, invalid_output_path):
+def validate_random_users(
+    logger, input_generator, valid_output_path, invalid_output_path
+):
     schema = {
         "$schema": "http://json-schema.org/draft-04/schema#",
         "type": "object",

@@ -20,9 +20,7 @@ class DownloadRandomUsers(luigi.Task):
     workdir = luigi.PathParameter(default=".")
 
     def output(self):
-        return luigi.LocalTarget(
-            Path(self.workdir) / "raw" / "randomusers.txt"
-        )
+        return luigi.LocalTarget(Path(self.workdir) / "raw" / "randomusers.txt")
 
     def run(self):
         with self.output().temporary_path() as temp_output_path:
@@ -38,15 +36,26 @@ class ValidateRandomUsers(luigi.Task):
 
     def output(self):
         return {
-            "valid": luigi.LocalTarget(Path(self.workdir) / "validated" / "randomusers.txt"),
-            "invalid": luigi.LocalTarget(Path(self.workdir) / "validation-failed" / "randomusers.txt")
+            "valid": luigi.LocalTarget(
+                Path(self.workdir) / "validated" / "randomusers.txt"
+            ),
+            "invalid": luigi.LocalTarget(
+                Path(self.workdir) / "validation-failed" / "randomusers.txt"
+            ),
         }
 
     def run(self):
         with self.input().open("r") as input_lines:
             with self.output()["valid"].temporary_path() as temp_valid_output_path:
-                with self.output()["invalid"].temporary_path() as temp_invalid_output_path:
-                    validate_random_users(logger, input_lines, temp_valid_output_path, temp_invalid_output_path)
+                with self.output()[
+                    "invalid"
+                ].temporary_path() as temp_invalid_output_path:
+                    validate_random_users(
+                        logger,
+                        input_lines,
+                        temp_valid_output_path,
+                        temp_invalid_output_path,
+                    )
 
 
 class ExtractFlatDetails(luigi.Task):
@@ -57,9 +66,7 @@ class ExtractFlatDetails(luigi.Task):
         return ValidateRandomUsers(workdir=self.workdir)
 
     def output(self):
-        return luigi.LocalTarget(
-            Path(self.workdir) / "flattened" / "randomusers.txt"
-        )
+        return luigi.LocalTarget(Path(self.workdir) / "flattened" / "randomusers.txt")
 
     def run(self):
         with self.input()["valid"].open("r") as input_lines:
@@ -76,8 +83,7 @@ class ToAvro(luigi.Task):
 
     def output(self):
         return luigi.LocalTarget(
-            Path(self.workdir) / "avro" / "randomusers.avro",
-            format=luigi.format.Nop
+            Path(self.workdir) / "avro" / "randomusers.avro", format=luigi.format.Nop
         )
 
     def run(self):
