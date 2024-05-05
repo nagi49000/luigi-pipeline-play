@@ -74,7 +74,8 @@ class ToAvro(luigi.Task):
 
     def output(self):
         return luigi.LocalTarget(
-            Path(self.workdir) / "avro" / "randomusers.avro", format=luigi.format.Nop
+            Path(self.workdir) / "avro" / "randomusers.avro",
+            format=luigi.format.Nop
         )
 
     def run(self):
