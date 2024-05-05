@@ -31,7 +31,7 @@ expected_flat_records = [
         "city": "Tlazazalca",
         "state": "Nayarit",
         "country": "Mexico",
-    }
+    },
 ]
 
 
