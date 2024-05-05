@@ -20,27 +20,15 @@ schema = {
                 {
                     "type": "object",
                     "properties": {
-                        "gender": {
-                            "type": "string"
-                        },
+                        "gender": {"type": "string"},
                         "name": {
                             "type": "object",
                             "properties": {
-                                "title": {
-                                    "type": "string"
-                                },
-                                "first": {
-                                    "type": "string"
-                                },
-                                "last": {
-                                    "type": "string"
-                                }
+                                "title": {"type": "string"},
+                                "first": {"type": "string"},
+                                "last": {"type": "string"},
                             },
-                            "required": [
-                                "title",
-                                "first",
-                                "last"
-                            ]
+                            "required": ["title", "first", "last"],
                         },
                         "location": {
                             "type": "object",
@@ -48,60 +36,31 @@ schema = {
                                 "street": {
                                     "type": "object",
                                     "properties": {
-                                        "number": {
-                                            "type": "integer"
-                                        },
-                                        "name": {
-                                            "type": "string"
-                                        }
+                                        "number": {"type": "integer"},
+                                        "name": {"type": "string"},
                                     },
-                                    "required": [
-                                        "number",
-                                        "name"
-                                    ]
+                                    "required": ["number", "name"],
                                 },
-                                "city": {
-                                    "type": "string"
-                                },
-                                "state": {
-                                    "type": "string"
-                                },
-                                "country": {
-                                    "type": "string"
-                                },
-                                "postcode": {
-                                    "type": ["string", "integer"]
-                                },
+                                "city": {"type": "string"},
+                                "state": {"type": "string"},
+                                "country": {"type": "string"},
+                                "postcode": {"type": ["string", "integer"]},
                                 "coordinates": {
                                     "type": "object",
                                     "properties": {
-                                        "latitude": {
-                                            "type": "string"
-                                        },
-                                        "longitude": {
-                                            "type": "string"
-                                        }
+                                        "latitude": {"type": "string"},
+                                        "longitude": {"type": "string"},
                                     },
-                                    "required": [
-                                        "latitude",
-                                        "longitude"
-                                    ]
+                                    "required": ["latitude", "longitude"],
                                 },
                                 "timezone": {
                                     "type": "object",
                                     "properties": {
-                                        "offset": {
-                                            "type": "string"
-                                        },
-                                        "description": {
-                                            "type": "string"
-                                        }
+                                        "offset": {"type": "string"},
+                                        "description": {"type": "string"},
                                     },
-                                    "required": [
-                                        "offset",
-                                        "description"
-                                    ]
-                                }
+                                    "required": ["offset", "description"],
+                                },
                             },
                             "required": [
                                 "street",
@@ -110,36 +69,20 @@ schema = {
                                 "country",
                                 "postcode",
                                 "coordinates",
-                                "timezone"
-                            ]
+                                "timezone",
+                            ],
                         },
-                        "email": {
-                            "type": "string"
-                        },
+                        "email": {"type": "string"},
                         "login": {
                             "type": "object",
                             "properties": {
-                                "uuid": {
-                                    "type": "string"
-                                },
-                                "username": {
-                                    "type": "string"
-                                },
-                                "password": {
-                                    "type": "string"
-                                },
-                                "salt": {
-                                    "type": "string"
-                                },
-                                "md5": {
-                                    "type": "string"
-                                },
-                                "sha1": {
-                                    "type": "string"
-                                },
-                                "sha256": {
-                                    "type": "string"
-                                }
+                                "uuid": {"type": "string"},
+                                "username": {"type": "string"},
+                                "password": {"type": "string"},
+                                "salt": {"type": "string"},
+                                "md5": {"type": "string"},
+                                "sha1": {"type": "string"},
+                                "sha256": {"type": "string"},
                             },
                             "required": [
                                 "uuid",
@@ -148,82 +91,45 @@ schema = {
                                 "salt",
                                 "md5",
                                 "sha1",
-                                "sha256"
-                            ]
+                                "sha256",
+                            ],
                         },
                         "dob": {
                             "type": "object",
                             "properties": {
-                                "date": {
-                                    "type": "string"
-                                },
-                                "age": {
-                                    "type": "integer"
-                                }
+                                "date": {"type": "string"},
+                                "age": {"type": "integer"},
                             },
-                            "required": [
-                                "date",
-                                "age"
-                            ]
+                            "required": ["date", "age"],
                         },
                         "registered": {
                             "type": "object",
                             "properties": {
-                                "date": {
-                                    "type": "string"
-                                },
-                                "age": {
-                                    "type": "integer"
-                                }
+                                "date": {"type": "string"},
+                                "age": {"type": "integer"},
                             },
-                            "required": [
-                                "date",
-                                "age"
-                            ]
+                            "required": ["date", "age"],
                         },
-                        "phone": {
-                            "type": "string"
-                        },
-                        "cell": {
-                            "type": "string"
-                        },
+                        "phone": {"type": "string"},
+                        "cell": {"type": "string"},
                         "id": {
                             "type": "object",
                             "properties": {
-                                "name": {
-                                    "type": ["string", "null"]
-                                },
-                                "value": {
-                                    "type": ["string", "null"]
-                                }
+                                "name": {"type": ["string", "null"]},
+                                "value": {"type": ["string", "null"]},
                             },
-                            "required": [
-                                "name",
-                                "value"
-                            ]
+                            "required": ["name", "value"],
                         },
                         "picture": {
                             "type": "object",
                             "properties": {
-                                "large": {
-                                    "type": "string"
-                                },
-                                "medium": {
-                                    "type": "string"
-                                },
-                                "thumbnail": {
-                                    "type": "string"
-                                }
+                                "large": {"type": "string"},
+                                "medium": {"type": "string"},
+                                "thumbnail": {"type": "string"},
                             },
-                            "required": [
-                                "large",
-                                "medium",
-                                "thumbnail"
-                            ]
+                            "required": ["large", "medium", "thumbnail"],
                         },
-                        "nat": {
-                            "type": "string"
-                        }
+                        "nat": {"type": "string"},
                     },
                     "required": [
                         "gender",
@@ -237,39 +143,23 @@ schema = {
                         "cell",
                         "id",
                         "picture",
-                        "nat"
-                    ]
+                        "nat",
+                    ],
                 }
-            ]
+            ],
         },
         "info": {
             "type": "object",
             "properties": {
-                "seed": {
-                    "type": "string"
-                },
-                "results": {
-                    "type": "integer"
-                },
-                "page": {
-                    "type": "integer"
-                },
-                "version": {
-                    "type": "string"
-                }
+                "seed": {"type": "string"},
+                "results": {"type": "integer"},
+                "page": {"type": "integer"},
+                "version": {"type": "string"},
             },
-            "required": [
-                "seed",
-                "results",
-                "page",
-                "version"
-            ]
-        }
+            "required": ["seed", "results", "page", "version"],
+        },
     },
-    "required": [
-        "results",
-        "info"
-    ]
+    "required": ["results", "info"],
 }
 
 
