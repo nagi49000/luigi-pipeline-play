@@ -3,6 +3,7 @@ import json
 import os
 from pathlib import Path
 from jsonschema import validate, ValidationError
+from json.decoder import JSONDecodeError
 from random import choices
 from datetime import datetime, UTC
 from string import ascii_uppercase
@@ -182,6 +183,6 @@ def validate_random_users(logger, input_generator, valid_output_path, invalid_ou
                 try:
                     validate(instance=json.loads(line), schema=schema)
                     valid_output_lines.write(line)
-                except ValidationError as e:
+                except (ValidationError, JSONDecodeError) as e:
                     logger.error(e)
                     invalid_output_lines.write(line)
