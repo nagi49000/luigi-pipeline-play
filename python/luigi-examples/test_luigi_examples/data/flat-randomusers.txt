@@ -1,0 +1,2 @@
+{"name": "Damanja Hoffer", "gender": "female", "phone": "(038) 8294795", "cell": "(06) 54234226", "email": "damanja.hoffer@example.com", "city": "Peins", "state": "Overijssel", "country": "Netherlands"}
+{"name": "Paulina Parra", "gender": "female", "phone": "(651) 548 8375", "cell": "(663) 854 7534", "email": "paulina.parra@example.com", "city": "Tlazazalca", "state": "Nayarit", "country": "Mexico"}

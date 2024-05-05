@@ -64,8 +64,8 @@ def to_parquet(_, input_generator, output_path):
     )
     with pyarrow.parquet.ParquetWriter(output_path, schema=parquet_schema) as writer:
         for line in input_generator:
-            # take line and dress as a dict representing a 1-elt table
+            # take line and dress as a 1-elt table
             # this is not efficient
-            table_as_dict = {k: [v] for k, v in json.loads(line).items()}
-            table = pyarrow.Table.from_pydict(table_as_dict, schema=parquet_schema)
+            pylist = [json.loads(line)]
+            table = pyarrow.Table.from_pylist(pylist, schema=parquet_schema)
             writer.write_table(table)
