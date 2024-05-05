@@ -297,5 +297,14 @@ class ToParquet(luigi.Task):
                     for line in input_lines:
                         # take line and dress as a dict representing a 1-elt table - this is not efficient
                         table_as_dict = {k: [v] for k, v in json.loads(line).items()}
-                        table = pyarrow.Table.from_pydict(table_as_dict)
+                        table = pyarrow.Table.from_pydict(table_as_dict, schema=parquet_schema)
                         writer.write_table(table)
+
+
+class AllSinks(luigi.WrapperTask):
+
+    def requires(self):
+        return [
+            ToParquet(),
+            ToAvro()
+        ]
