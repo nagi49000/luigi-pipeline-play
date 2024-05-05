@@ -6,7 +6,9 @@ dependencies:
   - pip=24.0
   - python=3.12.3
   - pip:
+      - avro==1.11.3
       - jsonschema==4.22.0
       - luigi==3.5.0
+      - pyarrow==16.0.0
       - requests==2.31.0
       - toml==0.10.2

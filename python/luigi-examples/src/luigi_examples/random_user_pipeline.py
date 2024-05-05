@@ -8,6 +8,11 @@ from jsonschema import validate, ValidationError
 from random import choices
 from datetime import datetime, UTC
 from string import ascii_uppercase
+import avro.schema
+from avro.datafile import DataFileReader, DataFileWriter
+from avro.io import DatumReader, DatumWriter
+import pyarrow
+import pyarrow.parquet
 
 
 schema = {
@@ -16,6 +21,8 @@ schema = {
     "properties": {
         "results": {
             "type": "array",
+            "minItems": 1,
+            "maxItems": 1,
             "items": [
                 {
                     "type": "object",
@@ -202,3 +209,93 @@ class ValidateRandomUsers(luigi.Task):
                             filename = Path("validation-failed") / random_stamped_str
                             with open(filename, "wt") as f:
                                 f.write(line)
+
+
+class ExtractFlatDetails(luigi.Task):
+
+    def requires(self):
+        return ValidateRandomUsers()
+
+    def output(self):
+        return luigi.LocalTarget(Path("flattened") / "randomusers.txt")
+
+    def run(self):
+        with self.input().open("r") as input_lines:
+            with self.output().temporary_path() as temp_output_path:
+                with open(temp_output_path, "wt") as output_lines:
+                    for line in input_lines:
+                        in_row = json.loads(line)["results"][0]
+                        out_row = {
+                            "name": in_row["name"]["first"] + " " + in_row["name"]["last"],
+                            "gender": in_row["gender"],
+                            "phone": in_row["phone"],
+                            "cell": in_row["cell"],
+                            "email": in_row["email"],
+                            "city": in_row["location"]["city"],
+                            "state": in_row["location"]["state"],
+                            "country": in_row["location"]["country"]
+                        }
+                        output_lines.write(json.dumps(out_row))
+                        output_lines.write("\n")
+
+
+class ToAvro(luigi.Task):
+
+    def requires(self):
+        return ExtractFlatDetails()
+
+    def output(self):
+        return luigi.LocalTarget(Path("avro") / "randomusers.avro", format=luigi.format.Nop)
+
+    def run(self):
+        avro_schema = {
+            "namespace": "randomusers",
+            "type": "record",
+            "name": "user",
+            "fields": [
+                {"name": "name", "type": "string"},
+                {"name": "gender", "type": "string"},
+                {"name": "phone", "type": "string"},
+                {"name": "cell", "type": "string"},
+                {"name": "email", "type": "string"},
+                {"name": "city", "type": "string"},
+                {"name": "state", "type": "string"},
+                {"name": "country", "type": "string"},
+            ]
+        }
+        with self.input().open("r") as input_lines:
+            with self.output().temporary_path() as temp_output_path:
+                with open(temp_output_path, "wb") as output_lines:
+                    writer = DataFileWriter(output_lines, DatumWriter(), avro.schema.parse(json.dumps(avro_schema)))
+                    for line in input_lines:
+                        writer.append(json.loads(line))
+                    writer.close()
+
+
+class ToParquet(luigi.Task):
+
+    def requires(self):
+        return ExtractFlatDetails()
+
+    def output(self):
+        return luigi.LocalTarget(Path("parquet") / "randomusers.parquet", format=luigi.format.Nop)
+
+    def run(self):
+        parquet_schema = pyarrow.schema([
+            ("name", pyarrow.string()),
+            ("gender", pyarrow.string()),
+            ("phone", pyarrow.string()),
+            ("cell", pyarrow.string()),
+            ("email", pyarrow.string()),
+            ("city", pyarrow.string()),
+            ("state", pyarrow.string()),
+            ("country", pyarrow.string()),
+        ])
+        with self.input().open("r") as input_lines:
+            with self.output().temporary_path() as temp_output_path:
+                with pyarrow.parquet.ParquetWriter(temp_output_path, schema=parquet_schema) as writer:
+                    for line in input_lines:
+                        # take line and dress as a dict representing a 1-elt table - this is not efficient
+                        table_as_dict = {k: [v] for k, v in json.loads(line).items()}
+                        table = pyarrow.Table.from_pydict(table_as_dict)
+                        writer.write_table(table)
