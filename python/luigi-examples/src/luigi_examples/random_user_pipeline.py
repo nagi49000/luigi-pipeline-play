@@ -46,16 +46,9 @@ class ValidateRandomUsers(luigi.Task):
 
     def run(self):
         with self.input().open("r") as input_lines:
-            with self.output()["valid"].temporary_path() as temp_valid_output_path:
-                with self.output()[
-                    "invalid"
-                ].temporary_path() as temp_invalid_output_path:
-                    validate_random_users(
-                        logger,
-                        input_lines,
-                        temp_valid_output_path,
-                        temp_invalid_output_path,
-                    )
+            with self.output()["valid"].temporary_path() as valid_path:
+                with self.output()["invalid"].temporary_path() as invalid_path:
+                    validate_random_users(logger, input_lines, valid_path, invalid_path)
 
 
 class ExtractFlatDetails(luigi.Task):
