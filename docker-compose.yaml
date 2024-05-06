@@ -9,9 +9,16 @@ services:
     healthcheck:
       test: curl -f http://localhost:8082 || exit 1
       start_period: 30s
+    networks:
+      - luigi-network
 
   random-users-pipeline:
     build:
       context: ./python/luigi-examples/
     depends_on:
       - luigi-server
+    networks:
+      - luigi-network
+
+networks:
+  luigi-network:

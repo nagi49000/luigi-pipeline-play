@@ -19,4 +19,4 @@ RUN python -m pytest --cov=./src
 
 WORKDIR ${APP_HOME}/src
 
-CMD ["python", "-m", "luigi", "--module", "luigi_examples.random_user_pipeline", "AllSinks", "--workdir", "foo"]
+CMD ["python", "-m", "luigi", "--scheduler-host", "luigi-server", "--module", "luigi_examples.random_user_pipeline", "AllSinks", "--workdir", "foo"]
