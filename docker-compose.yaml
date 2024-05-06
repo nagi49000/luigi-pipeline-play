@@ -1,0 +1,17 @@
+version: "3.7"
+
+services:
+  luigi-server:
+    build:
+      context: ./services/luigi-server/
+    ports:
+      - 18082:8082
+    healthcheck:
+      test: curl -f http://localhost:8082 || exit 1
+      start_period: 30s
+
+  random-users-pipeline:
+    build:
+      context: ./python/luigi-examples/
+    depends_on:
+      - luigi-server
