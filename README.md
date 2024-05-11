@@ -30,6 +30,22 @@ python -m luigi --module luigi_examples.random_user_pipeline  AllSinks --workdir
 ```
 The resultant DAG (and success of stages) will then be available in the scheduler UI.
 
+### Docker setup
+
+For running in a containerized environment, one can
+- configure a scheduler container for the scheduler
+- configure a worker container for each, or a set, of pipelines
+
+An example of this is in the `docker-compose.yaml`. The two containers can be brought up with
+```bash
+# in root of repo
+docker compose up --build
+```
+The scheduler UI will be available on http://localhost:18082. The completed files can be viewed in the worker container by docker exec-ing into the worker container
+```bash
+docker exec -it luigi-pipeline-play-random-users-pipeline-1 bash
+```
+and looking under the folder `foo`.
 
 ### References
 

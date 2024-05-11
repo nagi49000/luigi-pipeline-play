@@ -15,6 +15,7 @@ services:
   random-users-pipeline:
     build:
       context: ./python/luigi-examples/
+      dockerfile: Dockerfile.random_user
     depends_on:
       - luigi-server
     networks:
