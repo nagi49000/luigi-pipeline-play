@@ -23,7 +23,7 @@ One can bring up a scheduler with
 ```
 luigid --port 8082
 ```
-and the scheduler will be available on http://localhost:8082. The pipeline can be instantiated on the command line (and dropping the --local-scheduler flag) with
+and the scheduler will be available on http://localhost:8082. The pipeline can be instantiated on the command line (and dropping the --local-scheduler flag; by default the tasks will be sent to a scheduler listening on 8082/tcp) with
 ```bash
 # in ./python/luigi-examples/src
 python -m luigi --module luigi_examples.random_user_pipeline  AllSinks --workdir file-outputs
