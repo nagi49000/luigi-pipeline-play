@@ -26,8 +26,9 @@ def extract_flat_details_bulk(_, input_generator: Generator[str, None, None], ma
             "country": in_row["location"]["country"],
         }
         buffer.append(json.dumps(out_row) + "\n")
-        # ... generate from the buffer if we've hit the max buffer size...
         if len(buffer) >= max_size:
+            # (here one could do whole/bulk buffer operations)
+            # ... generate from the buffer if we've hit the max buffer size...
             yield from buffer
             buffer = []
     # ... generate the last few elements from input_generator that didn't quite make a full buffer
