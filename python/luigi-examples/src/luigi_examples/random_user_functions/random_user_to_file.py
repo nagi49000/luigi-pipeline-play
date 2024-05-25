@@ -52,9 +52,9 @@ def extract_flat_details(_, input_generator: Generator[str, None, None]) -> Gene
 
 
 def extract_flat_details_to_file(_, input_generator: Generator[str, None, None], output_path: str):
-    with open(output_path, "wt") as output_lines:
+    with open(output_path, "wt") as f:
         for line in extract_flat_details(_, input_generator):
-            output_lines.write(line)
+            f.write(line)
 
 
 def to_avro_file(_, input_generator: Generator[str, None, None], output_path: str):
