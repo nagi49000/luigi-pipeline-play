@@ -32,10 +32,11 @@ def validate_random_users(logger: Logger, input_generator: Generator[str, None, 
     for line in input_generator:
         try:
             validate(instance=json.loads(line), schema=schema)
-            yield (0, line)
+            stream_index = 0
         except (ValidationError, JSONDecodeError) as e:
             logger.error(e)
-            yield (1, line)
+            stream_index = 1
+        yield (stream_index, line)
 
 
 def validate_random_users_to_file(
