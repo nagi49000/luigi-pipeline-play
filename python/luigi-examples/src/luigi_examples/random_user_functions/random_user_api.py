@@ -9,7 +9,7 @@ from datetime import datetime, UTC
 from string import ascii_uppercase
 
 
-def download_random_users(logger, output_path, n_record=3):
+def download_random_users_to_file(logger, output_path, n_record=3):
     with open(output_path, "wt") as f:
         for _ in range(n_record):
             response = requests.get("https://randomuser.me/api/")
@@ -22,7 +22,7 @@ def download_random_users(logger, output_path, n_record=3):
                 )
 
 
-def validate_random_users(
+def validate_random_users_to_file(
     logger, input_generator, valid_output_path, invalid_output_path
 ):
     schema = {

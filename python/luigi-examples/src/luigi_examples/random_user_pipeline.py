@@ -2,13 +2,13 @@ import luigi
 import logging
 from pathlib import Path
 from .random_user_functions.random_user_api import (
-    download_random_users,
-    validate_random_users,
+    download_random_users_to_file,
+    validate_random_users_to_file,
 )
 from .random_user_functions.random_user_to_file import (
-    extract_flat_details,
-    to_avro,
-    to_parquet,
+    extract_flat_details_to_file,
+    to_avro_file,
+    to_parquet_file,
 )
 
 
@@ -24,7 +24,7 @@ class DownloadRandomUsers(luigi.Task):
 
     def run(self):
         with self.output().temporary_path() as temp_output_path:
-            download_random_users(logger, temp_output_path)
+            download_random_users_to_file(logger, temp_output_path)
 
 
 class ValidateRandomUsers(luigi.Task):
@@ -48,7 +48,7 @@ class ValidateRandomUsers(luigi.Task):
         with self.input().open("r") as input_lines:
             with self.output()["valid"].temporary_path() as valid_path:
                 with self.output()["invalid"].temporary_path() as invalid_path:
-                    validate_random_users(logger, input_lines, valid_path, invalid_path)
+                    validate_random_users_to_file(logger, input_lines, valid_path, invalid_path)
 
 
 class ExtractFlatDetails(luigi.Task):
@@ -64,7 +64,7 @@ class ExtractFlatDetails(luigi.Task):
     def run(self):
         with self.input()["valid"].open("r") as input_lines:
             with self.output().temporary_path() as temp_output_path:
-                extract_flat_details(logger, input_lines, temp_output_path)
+                extract_flat_details_to_file(logger, input_lines, temp_output_path)
 
 
 class ToAvro(luigi.Task):
@@ -82,7 +82,7 @@ class ToAvro(luigi.Task):
     def run(self):
         with self.input().open("r") as input_lines:
             with self.output().temporary_path() as temp_output_path:
-                to_avro(logger, input_lines, temp_output_path)
+                to_avro_file(logger, input_lines, temp_output_path)
 
 
 class ToParquet(luigi.Task):
@@ -101,7 +101,7 @@ class ToParquet(luigi.Task):
     def run(self):
         with self.input().open("r") as input_lines:
             with self.output().temporary_path() as temp_output_path:
-                to_parquet(logger, input_lines, temp_output_path)
+                to_parquet_file(logger, input_lines, temp_output_path)
 
 
 class AllSinks(luigi.WrapperTask):

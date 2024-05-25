@@ -5,9 +5,9 @@ from avro.datafile import DataFileReader
 from avro.io import DatumReader
 import pyarrow.parquet
 from luigi_examples.random_user_functions.random_user_to_file import (
-    extract_flat_details,
-    to_avro,
-    to_parquet,
+    extract_flat_details_to_file,
+    to_avro_file,
+    to_parquet_file,
 )
 
 
@@ -35,13 +35,13 @@ expected_flat_records = [
 ]
 
 
-def test_extract_flat_details(tmp_path):
+def test_extract_flat_details_to_file(tmp_path):
     logger = logging.getLogger("root")
     test_data = Path(__file__).parents[0] / "data" / "valid-randomusers.txt"
     flat_data = tmp_path / "flat.txt"
 
     with open(test_data, "rt") as input_generator:
-        extract_flat_details(logger, input_generator, flat_data)
+        extract_flat_details_to_file(logger, input_generator, flat_data)
 
     expected_data = "\n".join([json.dumps(x) for x in expected_flat_records]) + "\n"
 
@@ -49,13 +49,13 @@ def test_extract_flat_details(tmp_path):
         assert f.read() == expected_data
 
 
-def test_to_avro(tmp_path):
+def test_to_avro_file(tmp_path):
     logger = logging.getLogger("root")
     test_data = Path(__file__).parents[0] / "data" / "flat-randomusers.txt"
     avro_data = tmp_path / "randomusers.avro"
 
     with open(test_data, "rt") as input_generator:
-        to_avro(logger, input_generator, avro_data)
+        to_avro_file(logger, input_generator, avro_data)
 
     with open(avro_data, "rb") as f:
         records = [x for x in DataFileReader(f, DatumReader())]
@@ -63,13 +63,13 @@ def test_to_avro(tmp_path):
     assert records == expected_flat_records
 
 
-def test_to_parquet(tmp_path):
+def test_to_parquet_file(tmp_path):
     logger = logging.getLogger("root")
     test_data = Path(__file__).parents[0] / "data" / "flat-randomusers.txt"
     parquet_data = tmp_path / "randomusers.parquet"
 
     with open(test_data, "rt") as input_generator:
-        to_parquet(logger, input_generator, parquet_data)
+        to_parquet_file(logger, input_generator, parquet_data)
 
     table = pyarrow.parquet.read_table(parquet_data)
     assert table.to_pylist() == expected_flat_records

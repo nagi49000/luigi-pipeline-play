@@ -6,7 +6,7 @@ import pyarrow
 import pyarrow.parquet
 
 
-def extract_flat_details(_, input_generator, output_path):
+def extract_flat_details_to_file(_, input_generator, output_path):
     with open(output_path, "wt") as output_lines:
         for line in input_generator:
             in_row = json.loads(line)["results"][0]
@@ -24,7 +24,7 @@ def extract_flat_details(_, input_generator, output_path):
             output_lines.write("\n")
 
 
-def to_avro(_, input_generator, output_path):
+def to_avro_file(_, input_generator, output_path):
     avro_schema = {
         "namespace": "randomusers",
         "type": "record",
@@ -49,7 +49,7 @@ def to_avro(_, input_generator, output_path):
         writer.close()
 
 
-def to_parquet(_, input_generator, output_path):
+def to_parquet_file(_, input_generator, output_path):
     parquet_schema = pyarrow.schema(
         [
             ("name", pyarrow.string()),
