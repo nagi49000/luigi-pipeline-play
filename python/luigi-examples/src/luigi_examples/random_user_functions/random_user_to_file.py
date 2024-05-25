@@ -2,29 +2,34 @@ import json
 import avro.schema
 from avro.datafile import DataFileWriter
 from avro.io import DatumWriter
+from typing import Generator
 import pyarrow
 import pyarrow.parquet
 
 
-def extract_flat_details_to_file(_, input_generator, output_path):
+def extract_flat_details(_, input_generator: Generator[str, None, None]) -> Generator[str, None, None]:
+    for line in input_generator:
+        in_row = json.loads(line)["results"][0]
+        out_row = {
+            "name": in_row["name"]["first"] + " " + in_row["name"]["last"],
+            "gender": in_row["gender"],
+            "phone": in_row["phone"],
+            "cell": in_row["cell"],
+            "email": in_row["email"],
+            "city": in_row["location"]["city"],
+            "state": in_row["location"]["state"],
+            "country": in_row["location"]["country"],
+        }
+        yield json.dumps(out_row) + "\n"
+
+
+def extract_flat_details_to_file(_, input_generator: Generator[str, None, None], output_path: str):
     with open(output_path, "wt") as output_lines:
-        for line in input_generator:
-            in_row = json.loads(line)["results"][0]
-            out_row = {
-                "name": in_row["name"]["first"] + " " + in_row["name"]["last"],
-                "gender": in_row["gender"],
-                "phone": in_row["phone"],
-                "cell": in_row["cell"],
-                "email": in_row["email"],
-                "city": in_row["location"]["city"],
-                "state": in_row["location"]["state"],
-                "country": in_row["location"]["country"],
-            }
-            output_lines.write(json.dumps(out_row))
-            output_lines.write("\n")
+        for line in extract_flat_details(_, input_generator):
+            output_lines.write(line)
 
 
-def to_avro_file(_, input_generator, output_path):
+def to_avro_file(_, input_generator: Generator[str, None, None], output_path: str):
     avro_schema = {
         "namespace": "randomusers",
         "type": "record",
@@ -49,7 +54,7 @@ def to_avro_file(_, input_generator, output_path):
         writer.close()
 
 
-def to_parquet_file(_, input_generator, output_path):
+def to_parquet_file(_, input_generator: Generator[str, None, None], output_path: str):
     parquet_schema = pyarrow.schema(
         [
             ("name", pyarrow.string()),
