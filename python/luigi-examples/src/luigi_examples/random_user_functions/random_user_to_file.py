@@ -30,7 +30,7 @@ def extract_flat_details_bulk(_, input_generator: Generator[str, None, None], ma
         if len(buffer) >= max_size:
             yield from buffer
             buffer = []
-    # ... generate the last few elements input_generator that didn't quite make a full buffer
+    # ... generate the last few elements from input_generator that didn't quite make a full buffer
     yield from buffer
 
 
