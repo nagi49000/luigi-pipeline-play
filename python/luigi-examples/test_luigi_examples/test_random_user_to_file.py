@@ -5,6 +5,7 @@ from avro.datafile import DataFileReader
 from avro.io import DatumReader
 import pyarrow.parquet
 from luigi_examples.random_user_functions.random_user_to_file import (
+    extract_flat_details_bulk,
     extract_flat_details_to_file,
     to_avro_file,
     to_parquet_file,
@@ -47,6 +48,25 @@ def test_extract_flat_details_to_file(tmp_path):
 
     with open(flat_data, "rt") as f:
         assert f.read() == expected_data
+
+
+def test_extract_flat_details_bulk():
+    logger = logging.getLogger("root")
+    test_data = Path(__file__).parents[0] / "data" / "valid-randomusers.txt"
+    with open(test_data, "rt") as f:
+        valid_randomusers = [x for x in f]  # should have 2 records
+
+    # when varying the buffer size, check on a generator over 2 records that we get the right number of outputs
+    assert len(list(extract_flat_details_bulk(logger, valid_randomusers, 1))) == 2
+    assert len(list(extract_flat_details_bulk(logger, valid_randomusers, 2))) == 2
+    assert len(list(extract_flat_details_bulk(logger, valid_randomusers, 3))) == 2
+
+    # when varying the buffer size, check on a generator over 6 records we get the right number of outputs
+    assert len(list(extract_flat_details_bulk(logger, valid_randomusers * 3, 1))) == 6
+    assert len(list(extract_flat_details_bulk(logger, valid_randomusers * 3, 5))) == 6
+    assert len(list(extract_flat_details_bulk(logger, valid_randomusers * 3, 6))) == 6
+    assert len(list(extract_flat_details_bulk(logger, valid_randomusers * 3, 7))) == 6
+    assert len(list(extract_flat_details_bulk(logger, valid_randomusers * 3, 12))) == 6
 
 
 def test_to_avro_file(tmp_path):

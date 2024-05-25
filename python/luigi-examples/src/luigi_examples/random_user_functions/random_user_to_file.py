@@ -7,6 +7,33 @@ import pyarrow
 import pyarrow.parquet
 
 
+def extract_flat_details_bulk(_, input_generator: Generator[str, None, None], max_size: int) -> Generator[str, None, None]:
+    """ As an example, this performs the same job as extract_flat_details, but with a internal buffer.
+        This example covers the use case where bulk operations over multiple rows would need to be performed.
+    """
+    buffer = []
+    for line in input_generator:
+        # fill up the buffer...
+        in_row = json.loads(line)["results"][0]
+        out_row = {
+            "name": in_row["name"]["first"] + " " + in_row["name"]["last"],
+            "gender": in_row["gender"],
+            "phone": in_row["phone"],
+            "cell": in_row["cell"],
+            "email": in_row["email"],
+            "city": in_row["location"]["city"],
+            "state": in_row["location"]["state"],
+            "country": in_row["location"]["country"],
+        }
+        buffer.append(json.dumps(out_row) + "\n")
+        # ... generate from the buffer if we've hit the max buffer size...
+        if len(buffer) >= max_size:
+            yield from buffer
+            buffer = []
+    # ... generate the last few elements input_generator that didn't quite make a full buffer
+    yield from buffer
+
+
 def extract_flat_details(_, input_generator: Generator[str, None, None]) -> Generator[str, None, None]:
     for line in input_generator:
         in_row = json.loads(line)["results"][0]
