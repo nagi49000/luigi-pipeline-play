@@ -4,9 +4,10 @@ channels:
   - defaults
 dependencies:
   - pip=24.0
-  - python=3.12.3
+  - python=3.11.9
   - pip:
       - avro==1.11.3
+      - great-expectations==1.1.2
       - jsonschema==4.22.0
       - luigi==3.5.0
       - pyarrow==16.0.0
