@@ -1,6 +1,8 @@
 from pathlib import Path
 import great_expectations as gx
 
+# based on https://github.com/great-expectations/community-demo-2024-04-16/blob/main/gx-1.0.0a4/demos/notebooks/01-authoring_expectation_suites.ipynb
+
 # based on this GX datasource and batch - https://discourse.greatexpectations.io/t/configure-datasource-for-json-files/121
 context = gx.get_context()
 # the data source specifies the engine used for sourcing the data
