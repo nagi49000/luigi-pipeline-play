@@ -5,6 +5,7 @@ from avro.io import DatumWriter
 from typing import Generator
 import pyarrow
 import pyarrow.parquet
+import great_expectations as gx
 
 
 def extract_flat_details_bulk(_, input_generator: Generator[str, None, None], max_size: int) -> Generator[str, None, None]:
@@ -55,6 +56,16 @@ def extract_flat_details_to_file(_, input_generator: Generator[str, None, None],
     with open(output_path, "wt") as f:
         for line in extract_flat_details(_, input_generator):
             f.write(line)
+
+
+def validate_data_in_flat_details(
+    logger, input_generator, valid_output_path, invalid_output_path
+):
+    # trivial placeholder plumbing
+    with open(valid_output_path, "wt") as valid_output_lines:
+        with open(invalid_output_path, "wt") as invalid_output_lines:
+            for line in input_generator:
+                valid_output_lines.write(line)
 
 
 def to_avro_file(_, input_generator: Generator[str, None, None], output_path: str):
