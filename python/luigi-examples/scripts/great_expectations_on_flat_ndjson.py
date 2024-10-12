@@ -10,7 +10,7 @@ data_source = context.data_sources.add_pandas("pandas")
 ndjson_filename = Path(__file__).parents[1] / "test_luigi_examples" / "data" / "flat-randomusers.txt"
 data_asset = data_source.add_json_asset(name="ndjson asset on pandas", path_or_buf=ndjson_filename, lines=True)
 
-# define the expectations in code
+# define the expectations in code as a suite in the context
 suite = gx.ExpectationSuite(name="flat ndjson suite")
 suite.add_expectation(
     gx.expectations.ExpectColumnValuesToMatchRegex(
@@ -28,11 +28,24 @@ suite = context.suites.add(suite)
 batch_definition = data_asset.add_batch_definition_whole_dataframe("batch definition")
 batch = batch_definition.get_batch()
 
-# run validation of expectations against batch of data
-validator = context.get_validator(batch=batch, expectation_suite=suite)
-results = validator.validate()
+# Add Validation Definition to the Data Context
+validation_definition = gx.ValidationDefinition(
+    data=batch_definition, suite=suite, name="flat json validation"
+)
+validation_definition = context.validation_definitions.add(validation_definition)
+
+# Add Checkpoint to the Data Context
+checkpoint = gx.Checkpoint(
+    name="flat json checkpoint",
+    validation_definitions=[validation_definition],
+    # actions=action_list, # some set of actions, like sending to slack
+    result_format={"result_format": "COMPLETE"},
+)
+context.checkpoints.add(checkpoint)
+
+results = checkpoint.run()
 
 # the expectation suite can be saved as a json configuration
-# validator.save_expectation_suite("expectation_suite.json")
+# context.get_validator(batch=batch, expectation_suite=suite).save_expectation_suite("expectation_suite.json")
 
 print(results)
