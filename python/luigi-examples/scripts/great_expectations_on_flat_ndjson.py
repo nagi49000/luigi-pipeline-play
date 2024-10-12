@@ -24,28 +24,13 @@ suite.add_expectation(
 )
 suite = context.suites.add(suite)
 
+# the expectation suite can be saved as a json configuration
+# context.get_validator(batch=batch, expectation_suite=suite).save_expectation_suite("expectation_suite.json")
+
 # Batches are designed to be "MECE" -- mutually exclusive and collectively exhaustive partitions of Data Assets
 batch_definition = data_asset.add_batch_definition_whole_dataframe("batch definition")
 batch = batch_definition.get_batch()
 
-# Add Validation Definition to the Data Context
-validation_definition = gx.ValidationDefinition(
-    data=batch_definition, suite=suite, name="flat json validation"
-)
-validation_definition = context.validation_definitions.add(validation_definition)
-
-# Add Checkpoint to the Data Context
-checkpoint = gx.Checkpoint(
-    name="flat json checkpoint",
-    validation_definitions=[validation_definition],
-    # actions=action_list, # some set of actions, like sending to slack
-    result_format={"result_format": "COMPLETE"},
-)
-context.checkpoints.add(checkpoint)
-
-results = checkpoint.run()
-
-# the expectation suite can be saved as a json configuration
-# context.get_validator(batch=batch, expectation_suite=suite).save_expectation_suite("expectation_suite.json")
+results = batch.validate(suite)
 
 print(results)
