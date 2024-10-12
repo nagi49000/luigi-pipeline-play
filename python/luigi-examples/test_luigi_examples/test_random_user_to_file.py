@@ -7,6 +7,7 @@ import pyarrow.parquet
 from luigi_examples.random_user_functions.random_user_to_file import (
     extract_flat_details_bulk,
     extract_flat_details_to_file,
+    validate_data_in_flat_details,
     to_avro_file,
     to_parquet_file,
 )
@@ -67,6 +68,16 @@ def test_extract_flat_details_bulk():
     assert len(list(extract_flat_details_bulk(logger, valid_randomusers * 3, 6))) == 6
     assert len(list(extract_flat_details_bulk(logger, valid_randomusers * 3, 7))) == 6
     assert len(list(extract_flat_details_bulk(logger, valid_randomusers * 3, 12))) == 6
+
+
+def test_validate_data_in_flat_details(tmp_path):
+    logger = logging.getLogger("root")
+    test_data = Path(__file__).parents[0] / "data" / "flat-randomusers.txt"
+    valid_data = tmp_path / "valid.txt"
+    invalid_data = tmp_path / "invalid.txt"
+
+    with open(test_data, "rt") as input_generator:
+        validate_data_in_flat_details(logger, input_generator, valid_data, invalid_data)
 
 
 def test_to_avro_file(tmp_path):
