@@ -1,6 +1,7 @@
 avro==1.11.3
 jsonschema==4.22.0
 luigi==3.5.0
+pandera[polars]==0.20.4
 pyarrow==16.0.0
 pytest==8.2.0
 pytest-cov==5.0.0

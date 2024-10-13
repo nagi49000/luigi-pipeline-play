@@ -5,7 +5,6 @@ from avro.io import DatumWriter
 from typing import Generator, TextIO
 import pyarrow
 import pyarrow.parquet
-import great_expectations as gx
 import pandera.polars as pa
 import polars as pl
 
