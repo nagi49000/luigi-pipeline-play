@@ -8,6 +8,7 @@ import re
 # and https://pandera.readthedocs.io/en/stable/polars.html
 # and https://pandera.readthedocs.io/en/stable/lazy_validation.html
 # and https://pandera.readthedocs.io/en/stable/checks.html
+# and https://pandera.readthedocs.io/en/latest/dataframe_schemas.html
 
 
 schema = pa.DataFrameSchema(
@@ -32,6 +33,7 @@ df = pl.read_ndjson(ndjson_filename)
 df = pl.concat([df, df], rechunk=True)
 
 try:
+    # results will contain the validated dataframe with any additional cleaning that panderas applies
     results = schema.validate(df, lazy=True)
 except pa.errors.SchemaErrors as exc:
     print("Schema errors and failure cases:")
