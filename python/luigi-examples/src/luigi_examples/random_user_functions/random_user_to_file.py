@@ -2,10 +2,12 @@ import json
 import avro.schema
 from avro.datafile import DataFileWriter
 from avro.io import DatumWriter
-from typing import Generator
+from typing import Generator, TextIO
 import pyarrow
 import pyarrow.parquet
 import great_expectations as gx
+import pandera.polars as pa
+import polars as pl
 
 
 def extract_flat_details_bulk(_, input_generator: Generator[str, None, None], max_size: int) -> Generator[str, None, None]:
@@ -58,16 +60,61 @@ def extract_flat_details_to_file(_, input_generator: Generator[str, None, None],
             f.write(line)
 
 
-def validate_data_in_flat_details(
-    logger, input_generator, valid_output_path, invalid_output_path
-):
-    # trivial placeholder plumbing
-    context = gx.get_context()
+def _validate_data_in_flat_details_dump_buffer(buffer: list[dict], valid_output_lines: TextIO, invalid_output_lines: TextIO) -> list[dict]:
+    schema = pa.DataFrameSchema(
+        columns={
+            "name": pa.Column(str),
+            "gender": pa.Column(str, pa.Check.isin(["male", "female"])),
+            "phone": pa.Column(str, pa.Check.str_matches(r"^(\+\d{1,2}\s)?\(?\d{3}\)?[\s.-]\d{3}[\s.-]\d{4}$")),
+            "cell": pa.Column(str, pa.Check.str_matches(r"^(\+\d{1,2}\s)?\(?\d{3}\)?[\s.-]\d{3}[\s.-]\d{4}$")),
+            "email": pa.Column(str, pa.Check.str_matches(r"(^[a-zA-Z0-9_.+-]+@[a-zA-Z0-9-]+\.[a-zA-Z0-9-.]+$)")),
+            "city": pa.Column(str),
+            "state": pa.Column(str),
+            "country": pa.Column(str),
+        },
+        strict=True
+    )
 
+    df = pl.DataFrame(buffer)
+
+    # get indices of bad data
+    try:
+        schema.validate(df, lazy=True)
+        bad_indexes = set()
+    except pa.errors.SchemaErrors as exc:
+        # print("Schema errors and failure cases:")
+        # print(exc.failure_cases)
+        bad_indexes = set(exc.failure_cases["index"].to_list())
+        # print(bad_indexes)
+
+    # triage good and bad data
+    for ctr, record in enumerate(buffer):
+        # print((ctr, record))
+        if ctr in bad_indexes:
+            invalid_output_lines.write(json.dumps(record))
+        else:
+            valid_output_lines.write(json.dumps(record))
+
+    return []
+
+
+def validate_data_in_flat_details(
+    _, input_generator: Generator, valid_output_path: str, invalid_output_path: str, max_size: int
+):
     with open(valid_output_path, "wt") as valid_output_lines:
         with open(invalid_output_path, "wt") as invalid_output_lines:
+            buffer = []  # list of dicts representing rows of data
             for line in input_generator:
-                valid_output_lines.write(line)
+                buffer.append(json.loads(line))
+                if len(buffer) >= max_size:
+                    buffer = _validate_data_in_flat_details_dump_buffer(
+                        buffer, valid_output_lines, invalid_output_lines
+                    )
+                # valid_output_lines.write(line)
+            if buffer:  # clean out last remaining elements
+                buffer = _validate_data_in_flat_details_dump_buffer(
+                    buffer, valid_output_lines, invalid_output_lines
+                )
 
 
 def to_avro_file(_, input_generator: Generator[str, None, None], output_path: str):

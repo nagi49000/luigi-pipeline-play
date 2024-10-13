@@ -77,7 +77,17 @@ def test_validate_data_in_flat_details(tmp_path):
     invalid_data = tmp_path / "invalid.txt"
 
     with open(test_data, "rt") as input_generator:
-        validate_data_in_flat_details(logger, input_generator, valid_data, invalid_data)
+        validate_data_in_flat_details(logger, input_generator, valid_data, invalid_data, 10)
+
+    with open(valid_data, "rt") as f:
+        valid_records = [json.loads(x) for x in f]
+
+    with open(invalid_data, "rt") as f:
+        invalid_records = [json.loads(x) for x in f]
+
+    # the first record should fail due to phone number format
+    assert invalid_records == [expected_flat_records[0]]
+    assert valid_records == [expected_flat_records[1]]
 
 
 def test_to_avro_file(tmp_path):

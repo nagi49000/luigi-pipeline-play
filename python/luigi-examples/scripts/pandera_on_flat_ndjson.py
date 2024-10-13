@@ -1,7 +1,6 @@
 from pathlib import Path
 import pandera.polars as pa
 import polars as pl
-import re
 
 
 # examples from https://khuyentran1401.github.io/reproducible-data-science/testing_data/pandera.html
