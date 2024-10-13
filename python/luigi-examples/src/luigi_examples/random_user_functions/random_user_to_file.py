@@ -91,15 +91,15 @@ def _validate_data_in_flat_details_dump_buffer(buffer: list[dict], valid_output_
     for ctr, record in enumerate(buffer):
         # print((ctr, record))
         if ctr in bad_indexes:
-            invalid_output_lines.write(json.dumps(record))
+            invalid_output_lines.write(json.dumps(record) + "\n")
         else:
-            valid_output_lines.write(json.dumps(record))
+            valid_output_lines.write(json.dumps(record) + "\n")
 
     return []
 
 
 def validate_data_in_flat_details(
-    _, input_generator: Generator, valid_output_path: str, invalid_output_path: str, max_size: int
+    _, input_generator: Generator, valid_output_path: str, invalid_output_path: str, max_size: int = 10
 ):
     with open(valid_output_path, "wt") as valid_output_lines:
         with open(invalid_output_path, "wt") as invalid_output_lines:
