@@ -19,7 +19,7 @@ logger = logging.getLogger("luigi")
 class DownloadRandomUsers(luigi.Task):
 
     workdir = luigi.PathParameter(default=".")
-    n_record = luigi.IntParameter(default=3)  # , description="number of times to hit the API")
+    n_record = luigi.IntParameter(default=3)
 
     def output(self):
         return luigi.LocalTarget(Path(self.workdir) / "raw" / "randomusers.txt")
