@@ -12,13 +12,15 @@ from string import ascii_uppercase
 
 
 def download_random_users(logger: Logger, n_record: int) -> Generator[str, None, None]:
+    uri = "https://randomuser.me/api/"
+    logger.info(f"Getting {n_record} records from {uri}")
     for _ in range(n_record):
-        response = requests.get("https://randomuser.me/api/")
+        response = requests.get(uri)
         if response.ok:
             yield response.text + "\n"
         else:
             logger.error(
-                f"GET to https://randomuser.me/api/ failed with {response.status_code}: {response.reason}"
+                f"GET to {uri} failed with {response.status_code}: {response.reason}"
             )
 
 
