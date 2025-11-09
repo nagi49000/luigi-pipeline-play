@@ -1,6 +1,6 @@
 from datetime import datetime
 from time import sleep
-from os import makedirs
+from os import makedirs, getenv
 from prefect import flow, task, tags
 from prefect.assets import materialize
 from prefect.logging import get_run_logger
@@ -143,6 +143,14 @@ def etl(n_record: int = 20):
 
 
 if __name__ == "__main__":
-    etl()
-    # etl.serve(name="random-user-deployment", cron="10 * * * *")
-    sleep(0.5)  # hack to get round waiting on a future at end of pipeline
+    # can set the server to hook up to with env var, e.g.
+    # export PREFECT_API_URL="http://localhost:4200/api"
+    # above is the default API url published when running, in a terminal, "prefect server start"
+    if getenv("PREFECT_API_URL") is None:  # if no server available, use temp server which will be created...
+        etl(n_record=20)
+        sleep(0.5)  # hack to get round waiting on a future at end of pipeline before temp server is shutdown
+    else:  # ... otherwise use available server to make a deployment
+        # can run with different parameters, e.g. n_record, by running a deployment
+        # https://docs.prefect.io/v3/how-to-guides/deployments/run-deployments
+        print(f"using Prefect server at {getenv('PREFECT_API_URL')}")
+        etl.serve(name="random-user-deployment", cron="10 * * * *")
