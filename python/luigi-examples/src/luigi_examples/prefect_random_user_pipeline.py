@@ -1,8 +1,9 @@
-import logging
+from datetime import datetime
 from time import sleep
 from os import makedirs
 from prefect import flow, task, tags
 from prefect.assets import materialize
+from prefect.logging import get_run_logger
 from pathlib import Path
 from .random_user_functions.random_user_api import (
     download_random_users_to_file,
@@ -16,11 +17,8 @@ from .random_user_functions.random_user_to_file import (
 )
 
 
-logger = logging.getLogger("prefect")
-
-
 # TODO a bit pants that these paths and files are hard coded
-workdir = Path(__file__).parents[1] / "prefect-file-outputs"
+workdir = Path(__file__).parents[1] / "prefect-file-outputs" / datetime.utcnow().strftime("%Y-%m-%dT%H-%M")
 raw_file = workdir / "raw" / "randomusers.txt"
 valid_file = workdir / "validated" / "randomusers.txt"
 invalid_file = workdir / "validation-failed" / "randomusers.txt"
@@ -50,7 +48,7 @@ def get_line_count(filename: Path) -> int:
 )
 def download_random_users(n_record: int):
     makedirs(raw_file.parent, exist_ok=True)
-    download_random_users_to_file(logger, raw_file, n_record=n_record)
+    download_random_users_to_file(get_run_logger(), raw_file, n_record=n_record)
 
 
 @materialize(
@@ -62,7 +60,7 @@ def validate_random_users():
     makedirs(valid_file.parent, exist_ok=True)
     makedirs(invalid_file.parent, exist_ok=True)
     with open(raw_file, "rt") as input_lines:
-        validate_random_users_to_file(logger, input_lines, valid_file, invalid_file)
+        validate_random_users_to_file(get_run_logger(), input_lines, valid_file, invalid_file)
 
 
 @materialize(
@@ -84,7 +82,7 @@ def invalid_random_users():
 def extract_flat_details():
     makedirs(flattened_file.parent, exist_ok=True)
     with open(valid_file, "rt") as input_lines:
-        extract_flat_details_to_file(logger, input_lines, flattened_file)
+        extract_flat_details_to_file(get_run_logger(), input_lines, flattened_file)
 
 
 @materialize(
@@ -96,7 +94,7 @@ def validate_flat_details():
     makedirs(valid_flattened_file.parent, exist_ok=True)
     makedirs(invalid_flattened_file.parent, exist_ok=True)
     with open(flattened_file, "rt") as input_lines:
-        validate_data_in_flat_details(logger, input_lines, valid_flattened_file, invalid_flattened_file)
+        validate_data_in_flat_details(get_run_logger(), input_lines, valid_flattened_file, invalid_flattened_file)
 
 
 @materialize(
@@ -118,7 +116,7 @@ def invalid_flat_details():
 def to_avro():
     makedirs(avro_file.parent, exist_ok=True)
     with open(valid_flattened_file, "rt") as input_lines:
-        to_avro_file(logger, input_lines, avro_file)
+        to_avro_file(get_run_logger(), input_lines, avro_file)
 
 
 @materialize(
@@ -129,11 +127,11 @@ def to_avro():
 def to_parquet():
     makedirs(parquet_file.parent, exist_ok=True)
     with open(valid_flattened_file, "rt") as input_lines:
-        to_parquet_file(logger, input_lines, parquet_file)
+        to_parquet_file(get_run_logger(), input_lines, parquet_file)
 
 
 @flow(name="random_users_etl", log_prints=True)
-def etl(workdir: Path, n_record: int):
+def etl(n_record: int = 20):
     download_random_users(n_record)
     validate_random_users()
     invalid_random_users()
@@ -145,5 +143,6 @@ def etl(workdir: Path, n_record: int):
 
 
 if __name__ == "__main__":
-    etl(workdir, 20)
-    sleep(0.1)  # hack to get round waiting on a future at end of pipeline
+    etl()
+    # etl.serve(name="random-user-deployment", cron="10 * * * *")
+    sleep(0.5)  # hack to get round waiting on a future at end of pipeline
