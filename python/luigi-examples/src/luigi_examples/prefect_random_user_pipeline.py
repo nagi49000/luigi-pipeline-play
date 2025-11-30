@@ -131,7 +131,8 @@ def to_parquet():
 
 
 @flow(name="random_users_etl", log_prints=True)
-def etl(n_record: int = 20):
+def random_users_etl(n_record: int = 20):
+    """ for some things to work, the flow name has to be the same as the function name :-( """
     download_random_users(n_record)
     validate_random_users()
     invalid_random_users()
@@ -147,10 +148,11 @@ if __name__ == "__main__":
     # export PREFECT_API_URL="http://localhost:4200/api"
     # above is the default API url published when running, in a terminal, "prefect server start"
     if getenv("PREFECT_API_URL") is None:  # if no server available, use temp server which will be created...
-        etl(n_record=20)
+        random_users_etl(n_record=20)
         sleep(0.5)  # hack to get round waiting on a future at end of pipeline before temp server is shutdown
-    else:  # ... otherwise use available server to make a deployment
+    else:  # ... otherwise use available server to make a deployment, and treat this terminal as a temp worker pool
         # can run with different parameters, e.g. n_record, by running a deployment
         # https://docs.prefect.io/v3/how-to-guides/deployments/run-deployments
         print(f"using Prefect server at {getenv('PREFECT_API_URL')}")
-        etl.serve(name="random-user-deployment", cron="10 * * * *")
+        print("if possible, when using a Prefect server, also create and use a worker for running flows")
+        random_users_etl.serve(name="random-user-deployment", cron="10 * * * *")

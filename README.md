@@ -75,16 +75,29 @@ If you need to clear the prefect database (e.g. for dev), then run
 prefect server database reset
 ```
 
-The prefect server (by default) will be running on `localhost:4200`. A Prefect etl operation that can use a server can pick up the server by environment variable, e.g. settig
+The prefect server (by default) will be running on `localhost:4200`. Prefect operations that can use a server can pick up the server by environment variable, e.g. settig
 ```bash
 export PREFECT_API_URL="http://localhost:4200/api"
 ```
+This will most likely run in its own terminal, since it is a process.
 
-Now running the pipeline will submit the job to server to manage and run
-The pipeline can be instantiated on the command line
+Next, the server needs to know about a [work pool](https://docs.prefect.io/v3/how-to-guides/deployment_infra/manage-work-pools) that can run flows.
+
+```bash
+prefect worker start --pool local-dev-pool --type process
+```
+This will most likely run in its own terminal, since it is a process. Since the flow will be running on the worker, in that terminal, we can also see the output of jobs that are being run.
+
+
+Now the pipeline can be submitted to the server to manage and run.
 ```bash
 # in ./python/luigi-examples/src
 python -m luigi_examples.prefect_random_user_pipeline
+```
+More precisely, this will create a Prefect [deployment](https://docs.prefect.io/v3/how-to-guides/deployments/create-deployments) on the server, which can then submit Prefect [flows](https://docs.prefect.io/v3/concepts/flows) to the worker.
+
+```bash
+prefect deploy --cron "20 * * * *" --pool local-dev-pool --name random_users_dep --version 0.1  luigi_examples/prefect_random_user_pipeline.py:random_users_etl
 ```
 
 ### References
