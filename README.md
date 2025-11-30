@@ -1,7 +1,7 @@
 # luigi-pipeline-play
 Repo for playing with data pipelines in Luigi
 
-### Simple set up
+### Environment set up
 
 For running on bare metal, one can set up a conda environment with a [yaml file](./python/environment.yml), by running in the terminal
 ```bash
@@ -9,7 +9,11 @@ conda env create --file python/environment.yml
 conda activate luigi-env
 ```
 
-the pipeline can then be instantiated on the command line
+## Luigi
+
+### Simple set up
+
+The pipeline can be instantiated on the command line
 ```bash
 # in ./python/luigi-examples/src
 python -m luigi --module luigi_examples.random_user_pipeline  AllSinks --local-scheduler --workdir file-outputs
@@ -47,8 +51,45 @@ docker exec -it luigi-pipeline-play-random-users-pipeline-1 bash
 ```
 and looking under the folder `foo`.
 
+## Luigi
+
+### Simple set up
+
+The pipeline can be instantiated on the command line
+```bash
+# in ./python/luigi-examples/src
+python -m luigi_examples.prefect_random_user_pipeline
+```
+
+### Server set up
+
+One can configure the job to be submitted to a server, which can then manage scheduling etc.
+
+If a Prefect server is not running, one can start a server on any machine, e.g. your local dev machine, with
+```bash
+prefect server start
+```
+
+If you need to clear the prefect database (e.g. for dev), then run
+```bash
+prefect server database reset
+```
+
+The prefect server (by default) will be running on `localhost:4200`. A Prefect etl operation that can use a server can pick up the server by environment variable, e.g. settig
+```bash
+export PREFECT_API_URL="http://localhost:4200/api"
+```
+
+Now running the pipeline will submit the job to server to manage and run
+The pipeline can be instantiated on the command line
+```bash
+# in ./python/luigi-examples/src
+python -m luigi_examples.prefect_random_user_pipeline
+```
+
 ### References
 
-- [github and docs](https://github.com/spotify/luigi)
-- [docs pages](https://luigi.readthedocs.io/en/stable/running_luigi.html)
-- [digitalocean example](https://www.digitalocean.com/community/tutorials/how-to-build-a-data-processing-pipeline-using-luigi-in-python-on-ubuntu-20-04)
+- [luigi github and docs](https://github.com/spotify/luigi)
+- [luigi docs pages](https://luigi.readthedocs.io/en/stable/running_luigi.html)
+- [luigi digitalocean example](https://www.digitalocean.com/community/tutorials/how-to-build-a-data-processing-pipeline-using-luigi-in-python-on-ubuntu-20-04)
+- [prefect docs pages(https://docs.prefect.io/v3/get-started)
