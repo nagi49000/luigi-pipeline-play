@@ -132,7 +132,9 @@ def to_parquet():
 
 @flow(name="random_users_etl", log_prints=True)
 def random_users_etl(n_record: int = 20):
-    """ for some things to work, the flow name has to be the same as the function name :-( """
+    """ For some things to work, the flow name has to be the same as the function name :-(
+        This can be directly imported by prefect as a deployment
+    """
     download_random_users(n_record)
     validate_random_users()
     invalid_random_users()

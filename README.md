@@ -53,8 +53,6 @@ and looking under the folder `foo`.
 
 ## Prefect
 
-Full prefect docs are available [here](https://docs.prefect.io/v3/concepts).
-
 ### Simple set up
 
 The pipeline can be instantiated on the command line
@@ -102,4 +100,4 @@ This command may ask for some interactive [y/n] answers, and if requested can wr
 - [luigi github and docs](https://github.com/spotify/luigi)
 - [luigi docs pages](https://luigi.readthedocs.io/en/stable/running_luigi.html)
 - [luigi digitalocean example](https://www.digitalocean.com/community/tutorials/how-to-build-a-data-processing-pipeline-using-luigi-in-python-on-ubuntu-20-04)
-- [prefect docs pages(https://docs.prefect.io/v3/get-started)
+- [prefect docs pages](https://docs.prefect.io/v3/get-started)
