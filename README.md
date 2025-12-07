@@ -51,7 +51,9 @@ docker exec -it luigi-pipeline-play-random-users-pipeline-1 bash
 ```
 and looking under the folder `foo`.
 
-## Luigi
+## Prefect
+
+Full prefect docs are available [here](https://docs.prefect.io/v3/concepts).
 
 ### Simple set up
 
