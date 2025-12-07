@@ -17,7 +17,6 @@ from .random_user_functions.random_user_to_file import (
 )
 
 
-# TODO a bit pants that these paths and files are hard coded
 workdir = Path(__file__).parents[1] / "prefect-file-outputs" / datetime.utcnow().strftime("%Y-%m-%dT%H-%M")
 raw_file = workdir / "raw" / "randomusers.txt"
 valid_file = workdir / "validated" / "randomusers.txt"
@@ -54,83 +53,104 @@ def materialize_download_random_users(raw_file: Path, n_retries: int, n_record: 
     return download_random_users(n_record)
 
 
-@materialize(
-    file_uri(valid_file),
-    asset_deps=[file_uri(raw_file)],
-    log_prints=True
-)
-def validate_random_users():
-    makedirs(valid_file.parent, exist_ok=True)
-    makedirs(invalid_file.parent, exist_ok=True)
-    with open(raw_file, "rt") as input_lines:
-        validate_random_users_to_file(get_run_logger(), input_lines, valid_file, invalid_file)
+def materialize_validate_random_users(valid_file: Path, file_deps: list[Path]):
+    @materialize(
+        file_uri(valid_file),
+        asset_deps=[file_uri(x) for x in file_deps],
+        log_prints=True
+    )
+    def validate_random_users():
+        makedirs(valid_file.parent, exist_ok=True)
+        makedirs(invalid_file.parent, exist_ok=True)
+        with open(raw_file, "rt") as input_lines:
+            validate_random_users_to_file(get_run_logger(), input_lines, valid_file, invalid_file)
+
+    return validate_random_users()
 
 
-@materialize(
-    file_uri(invalid_file),
-    asset_deps=[file_uri(valid_file)],
-    log_prints=True
-)
-def invalid_random_users():
-    """ Bit of a dummy task, since validate_random_users really makes 2 assets """
-    n_invalid = get_line_count(invalid_file)
-    print(f"Found {n_invalid} invalid records in {invalid_file}")
+def materialize_invalid_random_users(invalid_file: Path, file_deps: list[Path]):
+    @materialize(
+        file_uri(invalid_file),
+        asset_deps=[file_uri(x) for x in file_deps],
+        log_prints=True
+    )
+    def invalid_random_users():
+        """ Bit of a dummy task, since validate_random_users really makes 2 assets """
+        n_invalid = get_line_count(invalid_file)
+        print(f"Found {n_invalid} invalid records in {invalid_file}")
+
+    return invalid_random_users()
 
 
-@materialize(
-    file_uri(flattened_file),
-    asset_deps=[file_uri(valid_file)],
-    log_prints=True
-)
-def extract_flat_details():
-    makedirs(flattened_file.parent, exist_ok=True)
-    with open(valid_file, "rt") as input_lines:
-        extract_flat_details_to_file(get_run_logger(), input_lines, flattened_file)
+def materialize_extract_flat_details(flattened_file: Path, file_deps: list[Path]):
+    @materialize(
+        file_uri(flattened_file),
+        asset_deps=[file_uri(x) for x in file_deps],
+        log_prints=True
+    )
+    def extract_flat_details():
+        makedirs(flattened_file.parent, exist_ok=True)
+        with open(valid_file, "rt") as input_lines:
+            extract_flat_details_to_file(get_run_logger(), input_lines, flattened_file)
+
+    return extract_flat_details()
 
 
-@materialize(
-    file_uri(valid_flattened_file),
-    asset_deps=[file_uri(flattened_file)],
-    log_prints=True
-)
-def validate_flat_details():
-    makedirs(valid_flattened_file.parent, exist_ok=True)
-    makedirs(invalid_flattened_file.parent, exist_ok=True)
-    with open(flattened_file, "rt") as input_lines:
-        validate_data_in_flat_details(get_run_logger(), input_lines, valid_flattened_file, invalid_flattened_file)
+def materialize_validate_flat_details(valid_flattened_file: Path, file_deps: list[Path]):
+    @materialize(
+        file_uri(valid_flattened_file),
+        asset_deps=[file_uri(x) for x in file_deps],
+        log_prints=True
+    )
+    def validate_flat_details():
+        makedirs(valid_flattened_file.parent, exist_ok=True)
+        makedirs(invalid_flattened_file.parent, exist_ok=True)
+        with open(flattened_file, "rt") as input_lines:
+            validate_data_in_flat_details(get_run_logger(), input_lines, valid_flattened_file, invalid_flattened_file)
+
+    return validate_flat_details()
 
 
-@materialize(
-    file_uri(invalid_flattened_file),
-    asset_deps=[file_uri(valid_flattened_file)],
-    log_prints=True
-)
-def invalid_flat_details():
-    """ Bit of a dummy task, since validate_flat_details really makes 2 assets """
-    n_invalid = get_line_count(invalid_flattened_file)
-    print(f"Found {n_invalid} invalid flat records in {invalid_file}")
+def materialize_invalid_flat_details(invalid_flattened_file: Path, file_deps: list[Path]):
+    @materialize(
+        file_uri(invalid_flattened_file),
+        asset_deps=[file_uri(x) for x in file_deps],
+        log_prints=True
+    )
+    def invalid_flat_details():
+        """ Bit of a dummy task, since validate_flat_details really makes 2 assets """
+        n_invalid = get_line_count(invalid_flattened_file)
+        print(f"Found {n_invalid} invalid flat records in {invalid_file}")
+
+    return invalid_flat_details()
 
 
-@materialize(
-    file_uri(avro_file),
-    asset_deps=[file_uri(valid_flattened_file)],
-    log_prints=True
-)
-def to_avro():
-    makedirs(avro_file.parent, exist_ok=True)
-    with open(valid_flattened_file, "rt") as input_lines:
-        to_avro_file(get_run_logger(), input_lines, avro_file)
+def materialize_to_avro(avro_file: Path, file_deps: list[Path]):
+    @materialize(
+        file_uri(avro_file),
+        asset_deps=[file_uri(x) for x in file_deps],
+        log_prints=True
+    )
+    def to_avro():
+        makedirs(avro_file.parent, exist_ok=True)
+        with open(valid_flattened_file, "rt") as input_lines:
+            to_avro_file(get_run_logger(), input_lines, avro_file)
+
+    return to_avro()
 
 
-@materialize(
-    file_uri(parquet_file),
-    asset_deps=[file_uri(valid_flattened_file)],
-    log_prints=True
-)
-def to_parquet():
-    makedirs(parquet_file.parent, exist_ok=True)
-    with open(valid_flattened_file, "rt") as input_lines:
-        to_parquet_file(get_run_logger(), input_lines, parquet_file)
+def materialize_to_parquet(parquet_file: Path, file_deps: list[Path]):
+    @materialize(
+        file_uri(parquet_file),
+        asset_deps=[file_uri(x) for x in file_deps],
+        log_prints=True
+    )
+    def to_parquet():
+        makedirs(parquet_file.parent, exist_ok=True)
+        with open(valid_flattened_file, "rt") as input_lines:
+            to_parquet_file(get_run_logger(), input_lines, parquet_file)
+
+    return to_parquet()
 
 
 @flow(name="random_users_etl", log_prints=True)
@@ -138,15 +158,14 @@ def random_users_etl(n_record: int = 20):
     """ For some things to work, the flow name has to be the same as the function name :-(
         This can be directly imported by prefect as a deployment
     """
-    # download_random_users(n_record)
     materialize_download_random_users(raw_file, 3, n_record)
-    validate_random_users()
-    invalid_random_users()
-    extract_flat_details()
-    validate_flat_details()
-    invalid_flat_details()
-    to_avro()
-    to_parquet()
+    materialize_validate_random_users(valid_file, [raw_file])
+    materialize_invalid_random_users(invalid_file, [valid_file])
+    materialize_extract_flat_details(flattened_file, [valid_file])
+    materialize_validate_flat_details(valid_flattened_file, [flattened_file])
+    materialize_invalid_flat_details(invalid_flattened_file, [valid_flattened_file])
+    materialize_to_avro(avro_file, [valid_flattened_file])
+    materialize_to_parquet(parquet_file, [valid_flattened_file])
 
 
 if __name__ == "__main__":
