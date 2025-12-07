@@ -93,7 +93,7 @@ Now the pipeline can be submitted to the server to manage and run. More precisel
 # in ./python/luigi-examples/src
 prefect deploy --cron "20 * * * *" --pool local-dev-pool --name random_users_dep --version 0.1  luigi_examples/prefect_random_user_pipeline.py:random_users_etl
 ```
-This command may ask for some interactive [y/n] answers, and if requested can write out the deployment as a yaml, and will the exit.
+This command may ask for some interactive [y/n] answers, and if requested can write out the deployment as a yaml, and will then exit.
 
 ### References
 

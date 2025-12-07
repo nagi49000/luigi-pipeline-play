@@ -41,14 +41,17 @@ def get_line_count(filename: Path) -> int:
     return n_line
 
 
-@materialize(
-    file_uri(raw_file),
-    retries=3,
-    log_prints=True
-)
-def download_random_users(n_record: int):
-    makedirs(raw_file.parent, exist_ok=True)
-    download_random_users_to_file(get_run_logger(), raw_file, n_record=n_record)
+def materialize_download_random_users(raw_file: Path, n_retries: int, n_record: int):
+    @materialize(
+        file_uri(raw_file),
+        retries=3,
+        log_prints=True
+    )
+    def download_random_users(n_record: int):
+        makedirs(raw_file.parent, exist_ok=True)
+        download_random_users_to_file(get_run_logger(), raw_file, n_record=n_record)
+
+    return download_random_users(n_record)
 
 
 @materialize(
@@ -135,7 +138,8 @@ def random_users_etl(n_record: int = 20):
     """ For some things to work, the flow name has to be the same as the function name :-(
         This can be directly imported by prefect as a deployment
     """
-    download_random_users(n_record)
+    # download_random_users(n_record)
+    materialize_download_random_users(raw_file, 3, n_record)
     validate_random_users()
     invalid_random_users()
     extract_flat_details()
