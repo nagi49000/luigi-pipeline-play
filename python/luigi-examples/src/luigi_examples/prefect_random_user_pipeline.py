@@ -154,9 +154,22 @@ def materialize_to_parquet(parquet_file: Path, file_deps: list[Path]):
 
 
 @flow(name="random_users_etl", log_prints=True)
-def random_users_etl(n_record: int = 20):
+def random_users_etl(
+    n_record: int = 20,
+    raw_file: Path = raw_file,
+    valid_file: Path = valid_file,
+    invalid_file: Path = invalid_file,
+    flattened_file: Path = flattened_file,
+    valid_flattened_file: Path = valid_flattened_file,
+    invalid_flattened_file: Path = invalid_flattened_file,
+    avro_file: Path = avro_file,
+    parquet_file: Path = parquet_file
+):
     """ For some things to work, the flow name has to be the same as the function name :-(
         This can be directly imported by prefect as a deployment
+
+        Paths and assets exposed in function definition so that they
+        are exposed as flow parameters in Prefect Server
     """
     materialize_download_random_users(raw_file, 3, n_record)
     materialize_validate_random_users(valid_file, [raw_file])
