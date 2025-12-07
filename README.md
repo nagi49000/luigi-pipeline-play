@@ -92,6 +92,7 @@ This will most likely run in its own terminal, since it is a process. Since the 
 
 Now the pipeline can be submitted to the server to manage and run. More precisely, one can create a Prefect [deployment](https://docs.prefect.io/v3/how-to-guides/deployments/create-deployments) on the server, which can then submit Prefect [flows](https://docs.prefect.io/v3/concepts/flows) to the worker.
 ```bash
+# in ./python/luigi-examples/src
 prefect deploy --cron "20 * * * *" --pool local-dev-pool --name random_users_dep --version 0.1  luigi_examples/prefect_random_user_pipeline.py:random_users_etl
 ```
 This command may ask for some interactive [y/n] answers, and if requested can write out the deployment as a yaml, and will the exit.
