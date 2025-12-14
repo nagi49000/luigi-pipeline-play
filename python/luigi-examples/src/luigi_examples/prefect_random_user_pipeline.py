@@ -4,6 +4,7 @@ from os import makedirs, getenv
 from prefect import flow, task, tags
 from prefect.assets import materialize
 from prefect.logging import get_run_logger
+from prefect.artifacts import create_table_artifact
 from pathlib import Path
 from .random_user_functions.random_user_api import (
     download_random_users_to_file,
@@ -49,6 +50,11 @@ def materialize_download_random_users(raw_file: Path, n_retries: int, n_record: 
     def download_random_users(n_record: int):
         makedirs(raw_file.parent, exist_ok=True)
         download_random_users_to_file(get_run_logger(), raw_file, n_record=n_record)
+        create_table_artifact(
+            key="n-download-random-users",
+            table=[{"n_record": n_record}],
+            description="number of records downloaded"
+        )
 
     return download_random_users(n_record)
 
@@ -78,6 +84,11 @@ def materialize_invalid_random_users(invalid_file: Path, file_deps: list[Path]):
         """ Bit of a dummy task, since validate_random_users really makes 2 assets """
         n_invalid = get_line_count(invalid_file)
         print(f"Found {n_invalid} invalid records in {invalid_file}")
+        create_table_artifact(
+            key="n-invalid-random-users",
+            table=[{"n_invalid": n_invalid}],
+            description="number of invalid records downloaded"
+        )
 
     return invalid_random_users()
 
@@ -121,6 +132,11 @@ def materialize_invalid_flat_details(invalid_flattened_file: Path, file_deps: li
         """ Bit of a dummy task, since validate_flat_details really makes 2 assets """
         n_invalid = get_line_count(invalid_flattened_file)
         print(f"Found {n_invalid} invalid flat records in {invalid_file}")
+        create_table_artifact(
+            key="n-invalid-flattened",
+            table=[{"n_invalid": n_invalid}],
+            description="number of invalid records from flattening"
+        )
 
     return invalid_flat_details()
 
